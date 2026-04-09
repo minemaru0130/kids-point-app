@@ -1284,10 +1284,12 @@ function renderSettings() {
   }
 
   const catList = document.getElementById('manage-categories');
-  catList.innerHTML = data.categories.map(cat => `
+  catList.innerHTML = data.categories.map((cat, i) => `
     <div class="child-manage-item">
-      <span>${cat.emoji} ${cat.name}（+${cat.points}pt）</span>
-      <button class="btn btn-danger btn-small" onclick="removeCategory('${cat.id}')">削除</button>
+      <span style="flex:1">${cat.emoji} ${cat.name}（+${cat.points}pt）</span>
+      <button class="btn btn-small" style="padding:4px 8px; background:#dfe6e9; box-shadow:none; min-width:0;${i === 0 ? 'opacity:0.3;pointer-events:none;' : ''}" onclick="moveCategoryUp('${cat.id}')">▲</button>
+      <button class="btn btn-small" style="padding:4px 8px; background:#dfe6e9; box-shadow:none; min-width:0; margin-left:2px;${i === data.categories.length - 1 ? 'opacity:0.3;pointer-events:none;' : ''}" onclick="moveCategoryDown('${cat.id}')">▼</button>
+      <button class="btn btn-danger btn-small" style="margin-left:6px;" onclick="removeCategory('${cat.id}')">削除</button>
     </div>
   `).join('');
 }
@@ -1312,6 +1314,22 @@ function addCategory() {
   document.getElementById('new-cat-emoji').value = '';
   document.getElementById('new-cat-name').value = '';
   document.getElementById('new-cat-pts').value = '1';
+  renderSettings();
+}
+
+function moveCategoryUp(id) {
+  const i = data.categories.findIndex(c => c.id === id);
+  if (i <= 0) return;
+  [data.categories[i - 1], data.categories[i]] = [data.categories[i], data.categories[i - 1]];
+  saveData();
+  renderSettings();
+}
+
+function moveCategoryDown(id) {
+  const i = data.categories.findIndex(c => c.id === id);
+  if (i < 0 || i >= data.categories.length - 1) return;
+  [data.categories[i], data.categories[i + 1]] = [data.categories[i + 1], data.categories[i]];
+  saveData();
   renderSettings();
 }
 
