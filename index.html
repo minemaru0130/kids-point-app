@@ -573,6 +573,9 @@
       <label>自由入力（なくてもOK）</label>
       <input type="text" id="add-memo" placeholder="くわしいメモ">
 
+      <label>いつ？</label>
+      <input type="date" id="add-date">
+
       <label>ポイント数</label>
       <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px">
         <button class="btn btn-small" onclick="adjustCustomPt(-1)">-</button>
@@ -645,6 +648,19 @@
       <button class="btn btn-small btn-full" onclick="document.getElementById('import-file').click()">データを読み込む</button>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
       <button class="btn btn-danger btn-full" style="margin-top:12px" onclick="resetAll()">すべてリセット</button>
+    </div>
+  </div>
+</div>
+
+<!-- 日付変更モーダル -->
+<div class="modal-overlay" id="editdate-modal">
+  <div class="modal">
+    <h3>📅 日付を変更</h3>
+    <p id="editdate-info" style="text-align:center; margin-bottom:16px;"></p>
+    <input type="date" id="editdate-value">
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <button class="btn btn-full" style="background:#dfe6e9" onclick="closeEditDateModal()">やめる</button>
+      <button class="btn btn-primary btn-full" onclick="doEditDate()">変更する</button>
     </div>
   </div>
 </div>
@@ -843,6 +859,15 @@ function addChild() {
   renderHome();
 }
 
+function changeChildColor(childId, color) {
+  const child = data.children.find(c => c.id === childId);
+  if (!child) return;
+  child.color = color;
+  saveData();
+  renderSettings();
+  renderHome();
+}
+
 function removeChild(id) {
   if (!confirm('本当に削除しますか？ポイントも消えます。')) return;
   data.children = data.children.filter(c => c.id !== id);
@@ -858,6 +883,11 @@ function renderAddSection() {
   select.innerHTML = data.children.map(c =>
     `<option value="${c.id}">${c.name}</option>`
   ).join('');
+
+  const dateInput = document.getElementById('add-date');
+  if (!dateInput.value) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
 
   const grid = document.getElementById('category-grid');
   grid.innerHTML = data.categories.map(cat => `
@@ -909,7 +939,7 @@ function addPoints() {
     emoji: cat.emoji,
     reason: cat.name + (memo ? `（${memo}）` : ''),
     points: points,
-    date: new Date().toISOString(),
+    date: (document.getElementById('add-date').value ? new Date(document.getElementById('add-date').value + 'T' + new Date().toTimeString().split(' ')[0]) : new Date()).toISOString(),
     type: 'earn',
   });
 
@@ -1072,10 +1102,40 @@ function renderHistory() {
         <div class="history-points ${isPlus ? 'plus' : 'minus'}">
           ${isPlus ? '+' : ''}${h.points}pt
         </div>
-        <button class="btn btn-danger btn-small" style="margin-left:8px; font-size:0.75em; padding:6px 10px;" onclick="deleteHistory('${h.id}')">取消</button>
+        <button class="btn btn-small" style="margin-left:4px; font-size:0.7em; padding:5px 8px; background:#74b9ff; color:white;" onclick="openEditDateModal('${h.id}')">📅</button>
+        <button class="btn btn-danger btn-small" style="margin-left:4px; font-size:0.7em; padding:5px 8px;" onclick="deleteHistory('${h.id}')">取消</button>
       </div>
     `;
   }).join('');
+}
+
+let editDateHistId = null;
+
+function openEditDateModal(histId) {
+  const entry = data.history.find(h => h.id === histId);
+  if (!entry) return;
+  editDateHistId = histId;
+  document.getElementById('editdate-info').textContent = `${entry.childName}: ${entry.reason}`;
+  document.getElementById('editdate-value').value = entry.date.split('T')[0];
+  document.getElementById('editdate-modal').classList.add('show');
+}
+
+function closeEditDateModal() {
+  document.getElementById('editdate-modal').classList.remove('show');
+  editDateHistId = null;
+}
+
+function doEditDate() {
+  const entry = data.history.find(h => h.id === editDateHistId);
+  if (!entry) return;
+  const newDate = document.getElementById('editdate-value').value;
+  if (!newDate) return;
+  const oldTime = new Date(entry.date);
+  const newDateTime = new Date(newDate + 'T' + oldTime.toTimeString().split(' ')[0]);
+  entry.date = newDateTime.toISOString();
+  saveData();
+  closeEditDateModal();
+  renderHistory();
 }
 
 function deleteHistory(histId) {
@@ -1108,9 +1168,14 @@ function renderSettings() {
     list.innerHTML = '<p style="color:var(--text-light); text-align:center; padding:12px">まだ登録されていません</p>';
   } else {
     list.innerHTML = data.children.map(c => `
-      <div class="child-manage-item">
+      <div class="child-manage-item" style="flex-wrap:wrap;">
         <span style="font-weight:700">${c.name}（${c.points}pt）</span>
         <button class="btn btn-danger btn-small" onclick="removeChild('${c.id}')">削除</button>
+        <div class="color-picker" style="width:100%; margin-top:8px; margin-bottom:0;">
+          ${['pink','blue','green','orange','purple'].map(color =>
+            `<div class="color-dot ${c.color === color ? 'selected' : ''}" data-c="${color}" style="width:30px;height:30px;" onclick="changeChildColor('${c.id}','${color}')"></div>`
+          ).join('')}
+        </div>
       </div>
     `).join('');
   }
