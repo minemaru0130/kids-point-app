@@ -979,9 +979,13 @@ function removeChild(id) {
 // ========== ポイント追加画面 ==========
 function renderAddSection() {
   const select = document.getElementById('add-child-select');
+  const currentChild = select.value;
   select.innerHTML = data.children.map(c =>
     `<option value="${c.id}">${c.name}</option>`
   ).join('');
+  if (currentChild && data.children.some(c => c.id === currentChild)) {
+    select.value = currentChild;
+  }
 
   const dateInput = document.getElementById('add-date');
   if (!dateInput.value) {
