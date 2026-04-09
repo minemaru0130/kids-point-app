@@ -10,12 +10,12 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    --bg: #f0f4ff;
+    --bg: #fff5e6;
     --card: #ffffff;
-    --primary: #6c5ce7;
-    --secondary: #00b894;
-    --accent: #fdcb6e;
-    --danger: #e17055;
+    --primary: #ff6b6b;
+    --secondary: #51cf66;
+    --accent: #ffd43b;
+    --danger: #ff6b6b;
     --text: #2d3436;
     --text-light: #636e72;
     --shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -24,33 +24,66 @@
   body {
     font-family: 'Zen Maru Gothic', sans-serif;
     background: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,107,107,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(81,207,102,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(255,212,59,0.08) 0%, transparent 50%);
     color: var(--text);
     min-height: 100vh;
     padding-bottom: 100px;
   }
 
+  /* 浮遊する背景デコレーション */
+  body::before {
+    content: '⭐ 🌈 ✨ 🎵 💫 🌟 🎀 🍀';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 1.5em;
+    word-spacing: 80px;
+    line-height: 120px;
+    letter-spacing: 60px;
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
   /* ヘッダー */
   header {
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+    background-size: 300% 300%;
+    animation: headerGradient 6s ease infinite;
     color: white;
     padding: 20px;
     text-align: center;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+    box-shadow: 0 4px 20px rgba(255,107,107,0.3);
+    border-bottom: 4px solid rgba(255,255,255,0.3);
+  }
+
+  @keyframes headerGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 
   header h1 {
-    font-size: 1.6em;
+    font-size: 1.8em;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
   }
 
   header p {
     font-size: 0.85em;
-    opacity: 0.85;
+    opacity: 0.9;
     margin-top: 4px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
   }
 
   /* タブ */
@@ -97,18 +130,22 @@
   /* カード */
   .card {
     background: var(--card);
-    border-radius: 20px;
+    border-radius: 24px;
     padding: 24px;
     margin-bottom: 16px;
     box-shadow: var(--shadow);
+    border: 3px solid rgba(255,107,107,0.1);
+    position: relative;
+    z-index: 1;
   }
 
   .card h2 {
-    font-size: 1.1em;
+    font-size: 1.15em;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
+    color: var(--primary);
   }
 
   /* 子どもカード */
@@ -140,58 +177,75 @@
   .child-card[data-color="orange"] { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #2d3436; }
   .child-card[data-color="purple"] { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
 
-  .child-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+  .child-card:hover { transform: translateY(-4px) rotate(-0.5deg); box-shadow: 0 12px 30px rgba(0,0,0,0.18); }
+  .child-card:active { transform: scale(0.97); }
 
   .child-name {
-    font-size: 1.4em;
+    font-size: 1.5em;
     font-weight: 900;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
   }
 
   .child-points {
-    font-size: 2.2em;
+    font-size: 2.6em;
     font-weight: 900;
     margin: 8px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
   }
 
   .child-points span {
-    font-size: 0.5em;
+    font-size: 0.45em;
     font-weight: 700;
   }
 
   .child-level {
-    font-size: 0.9em;
+    font-size: 0.95em;
     font-weight: 700;
-    opacity: 0.9;
+    opacity: 0.95;
+    background: rgba(255,255,255,0.2);
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
   }
 
   .child-allowance {
     font-size: 0.85em;
-    margin-top: 4px;
+    margin-top: 6px;
     opacity: 0.85;
   }
 
   /* プログレスバー */
   .progress-bar {
     width: 100%;
-    height: 10px;
-    background: rgba(255,255,255,0.3);
-    border-radius: 10px;
+    height: 14px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 14px;
     margin-top: 10px;
     overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.2);
   }
 
   .progress-fill {
     height: 100%;
-    background: rgba(255,255,255,0.8);
-    border-radius: 10px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));
+    border-radius: 14px;
     transition: width 0.5s ease;
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '✨';
+    position: absolute;
+    right: 2px;
+    top: -3px;
+    font-size: 0.7em;
   }
 
   /* ボタン */
   .btn {
     padding: 12px 24px;
     border: none;
-    border-radius: 15px;
+    border-radius: 50px;
     font-family: inherit;
     font-size: 1em;
     font-weight: 700;
@@ -200,29 +254,31 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
-  .btn:active { transform: scale(0.95); }
+  .btn:active { transform: scale(0.92); }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
 
   .btn-primary {
-    background: var(--primary);
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
     color: white;
   }
 
   .btn-success {
-    background: var(--secondary);
+    background: linear-gradient(135deg, #51cf66, #20bf6b);
     color: white;
   }
 
   .btn-danger {
-    background: var(--danger);
+    background: linear-gradient(135deg, #ff6b6b, #c0392b);
     color: white;
   }
 
   .btn-small {
     padding: 8px 16px;
     font-size: 0.85em;
-    border-radius: 12px;
+    border-radius: 50px;
   }
 
   .btn-full {
@@ -234,17 +290,20 @@
   input, select {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #dfe6e9;
-    border-radius: 12px;
+    border: 3px solid #ffe0e0;
+    border-radius: 16px;
     font-family: inherit;
     font-size: 1em;
     margin-bottom: 12px;
-    transition: border-color 0.3s;
+    transition: all 0.3s;
+    background: #fff8f5;
   }
 
   input:focus, select:focus {
     outline: none;
     border-color: var(--primary);
+    box-shadow: 0 0 12px rgba(255,107,107,0.2);
+    background: white;
   }
 
   label {
@@ -265,9 +324,9 @@
 
   .point-btn {
     padding: 16px;
-    border: 3px solid transparent;
-    border-radius: 16px;
-    background: #f8f9fa;
+    border: 3px solid #ffe0e0;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #fff8f0, #fff0f0);
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
@@ -275,19 +334,41 @@
   }
 
   .point-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 6px 16px rgba(255,107,107,0.15);
+  }
+
+  .point-btn:active {
+    transform: scale(0.95);
   }
 
   .point-btn.selected {
     border-color: var(--primary);
-    background: #f0edff;
+    background: linear-gradient(180deg, #ffe8e8, #ffd0d0);
+    box-shadow: 0 4px 16px rgba(255,107,107,0.2);
   }
 
   .point-btn .emoji {
-    font-size: 2em;
+    font-size: 2.2em;
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    animation: wiggle 2s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * 0.3s);
+  }
+
+  .point-btn:nth-child(1) .emoji { --i: 0; }
+  .point-btn:nth-child(2) .emoji { --i: 1; }
+  .point-btn:nth-child(3) .emoji { --i: 2; }
+  .point-btn:nth-child(4) .emoji { --i: 3; }
+  .point-btn:nth-child(5) .emoji { --i: 4; }
+  .point-btn:nth-child(6) .emoji { --i: 5; }
+  .point-btn:nth-child(7) .emoji { --i: 6; }
+  .point-btn:nth-child(8) .emoji { --i: 7; }
+
+  @keyframes wiggle {
+    0%, 80%, 100% { transform: rotate(0deg); }
+    85% { transform: rotate(-5deg); }
+    95% { transform: rotate(5deg); }
   }
 
   .point-btn .label {
@@ -356,28 +437,43 @@
   }
 
   .levelup-box {
-    background: white;
+    background: linear-gradient(180deg, #fff9e6, #ffffff);
     border-radius: 30px;
     padding: 40px;
     text-align: center;
     animation: bounceIn 0.5s;
     max-width: 320px;
+    border: 4px solid var(--accent);
+    box-shadow: 0 0 40px rgba(255,212,59,0.4);
   }
 
   .levelup-box .big-emoji {
-    font-size: 4em;
-    animation: bounce 1s infinite;
+    font-size: 5em;
+    animation: bounce 0.8s infinite, spin 3s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-15px) rotate(5deg); }
+    50% { transform: translateY(0) rotate(0deg); }
+    75% { transform: translateY(-15px) rotate(-5deg); }
+    100% { transform: translateY(0) rotate(0deg); }
   }
 
   .levelup-box h2 {
-    font-size: 1.8em;
-    color: var(--primary);
+    font-size: 2em;
+    background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 16px 0 8px;
   }
 
   .levelup-box p {
-    color: var(--text-light);
+    color: var(--text);
+    font-weight: 700;
     margin-bottom: 20px;
+    font-size: 1.1em;
   }
 
   /* 設定リスト */
@@ -463,9 +559,10 @@
     display: flex;
     justify-content: center;
     gap: 4px;
-    padding: 8px 16px;
+    padding: 10px 16px;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
     z-index: 100;
+    border-top: 3px solid #ffe0e0;
   }
 
   .nav-btn {
@@ -477,16 +574,18 @@
     cursor: pointer;
     text-align: center;
     font-family: inherit;
-    border-radius: 12px;
+    border-radius: 16px;
     transition: all 0.2s;
   }
 
+  .nav-btn:active { transform: scale(0.9); }
+
   .nav-btn.active {
-    background: #f0edff;
+    background: linear-gradient(180deg, #ffe8e8, #ffd4d4);
     color: var(--primary);
   }
 
-  .nav-btn .nav-icon { font-size: 1.4em; display: block; }
+  .nav-btn .nav-icon { font-size: 1.6em; display: block; }
   .nav-btn .nav-label { font-size: 0.7em; font-weight: 700; margin-top: 2px; display: block; }
 
   /* お小遣い交換モーダル */
@@ -541,8 +640,8 @@
 <body>
 
 <header>
-  <h1>ポイントゲット！</h1>
-  <p>がんばった分だけポイントがたまるよ</p>
+  <h1>🌟 ポイントゲット！ 🌟</h1>
+  <p>がんばった分だけポイントがたまるよ ✨</p>
 </header>
 
 <!-- セクション: ホーム -->
