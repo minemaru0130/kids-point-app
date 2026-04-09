@@ -751,6 +751,23 @@
   </div>
 </div>
 
+<!-- カテゴリ編集モーダル -->
+<div class="modal-overlay" id="editcat-modal">
+  <div class="modal">
+    <h3>📂 カテゴリ編集</h3>
+    <label>絵文字</label>
+    <input type="text" id="editcat-emoji" style="text-align:center">
+    <label>カテゴリ名</label>
+    <input type="text" id="editcat-name">
+    <label>ポイント数</label>
+    <input type="number" id="editcat-pts" min="1" max="100">
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <button class="btn btn-full" style="background:#dfe6e9" onclick="closeEditCatModal()">やめる</button>
+      <button class="btn btn-primary btn-full" onclick="doEditCategory()">保存する</button>
+    </div>
+  </div>
+</div>
+
 <!-- 日付変更モーダル -->
 <div class="modal-overlay" id="editdate-modal">
   <div class="modal">
@@ -1289,7 +1306,8 @@ function renderSettings() {
       <span style="flex:1">${cat.emoji} ${cat.name}（+${cat.points}pt）</span>
       <button class="btn btn-small" style="padding:4px 8px; background:#dfe6e9; box-shadow:none; min-width:0;${i === 0 ? 'opacity:0.3;pointer-events:none;' : ''}" onclick="moveCategoryUp('${cat.id}')">▲</button>
       <button class="btn btn-small" style="padding:4px 8px; background:#dfe6e9; box-shadow:none; min-width:0; margin-left:2px;${i === data.categories.length - 1 ? 'opacity:0.3;pointer-events:none;' : ''}" onclick="moveCategoryDown('${cat.id}')">▼</button>
-      <button class="btn btn-danger btn-small" style="margin-left:6px;" onclick="removeCategory('${cat.id}')">削除</button>
+      <button class="btn btn-small" style="padding:4px 8px; background:#74b9ff; color:white; box-shadow:none; min-width:0; margin-left:4px;" onclick="openEditCatModal('${cat.id}')">✏️</button>
+      <button class="btn btn-danger btn-small" style="margin-left:4px;" onclick="removeCategory('${cat.id}')">削除</button>
     </div>
   `).join('');
 }
@@ -1314,6 +1332,34 @@ function addCategory() {
   document.getElementById('new-cat-emoji').value = '';
   document.getElementById('new-cat-name').value = '';
   document.getElementById('new-cat-pts').value = '1';
+  renderSettings();
+}
+
+let editCatId = null;
+
+function openEditCatModal(id) {
+  const cat = data.categories.find(c => c.id === id);
+  if (!cat) return;
+  editCatId = id;
+  document.getElementById('editcat-emoji').value = cat.emoji;
+  document.getElementById('editcat-name').value = cat.name;
+  document.getElementById('editcat-pts').value = cat.points;
+  document.getElementById('editcat-modal').classList.add('show');
+}
+
+function closeEditCatModal() {
+  document.getElementById('editcat-modal').classList.remove('show');
+  editCatId = null;
+}
+
+function doEditCategory() {
+  const cat = data.categories.find(c => c.id === editCatId);
+  if (!cat) return;
+  cat.emoji = document.getElementById('editcat-emoji').value.trim() || '⭐';
+  cat.name = document.getElementById('editcat-name').value.trim() || cat.name;
+  cat.points = parseInt(document.getElementById('editcat-pts').value) || 1;
+  saveData();
+  closeEditCatModal();
   renderSettings();
 }
 
