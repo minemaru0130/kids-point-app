@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ポイントゲット！ - おこづかいポイントアプリ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --primary: #6c5ce7;
+    --secondary: #00b894;
+    --accent: #fdcb6e;
+    --danger: #e17055;
+    --text: #2d3436;
+    --text-light: #636e72;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  body {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  /* ヘッダー */
+  header {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+  }
+
+  header h1 {
+    font-size: 1.6em;
+    font-weight: 900;
+    letter-spacing: 2px;
+  }
+
+  header p {
+    font-size: 0.85em;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+
+  /* タブ */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-family: inherit;
+    font-size: 0.95em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+    color: var(--text-light);
+    box-shadow: var(--shadow);
+  }
+
+  .tab-btn.active {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.05);
+  }
+
+  .tab-btn:hover { transform: scale(1.05); }
+
+  /* セクション */
+  .section {
+    display: none;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .section.active { display: block; }
+
+  /* カード */
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .card h2 {
+    font-size: 1.1em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 子どもカード */
+  .child-card {
+    background: linear-gradient(135deg, #dfe6e9, #b2bec3);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .child-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .child-card[data-color="pink"] { background: linear-gradient(135deg, #fd79a8, #e84393); color: white; }
+  .child-card[data-color="blue"] { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
+  .child-card[data-color="green"] { background: linear-gradient(135deg, #55efc4, #00b894); color: white; }
+  .child-card[data-color="orange"] { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #2d3436; }
+  .child-card[data-color="purple"] { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
+
+  .child-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+
+  .child-name {
+    font-size: 1.4em;
+    font-weight: 900;
+  }
+
+  .child-points {
+    font-size: 2.2em;
+    font-weight: 900;
+    margin: 8px 0;
+  }
+
+  .child-points span {
+    font-size: 0.5em;
+    font-weight: 700;
+  }
+
+  .child-level {
+    font-size: 0.9em;
+    font-weight: 700;
+    opacity: 0.9;
+  }
+
+  .child-allowance {
+    font-size: 0.85em;
+    margin-top: 4px;
+    opacity: 0.85;
+  }
+
+  /* プログレスバー */
+  .progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+
+  /* ボタン */
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 15px;
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn:active { transform: scale(0.95); }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-success {
+    background: var(--secondary);
+    color: white;
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+
+  .btn-small {
+    padding: 8px 16px;
+    font-size: 0.85em;
+    border-radius: 12px;
+  }
+
+  .btn-full {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* 入力フィールド */
+  input, select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #dfe6e9;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1em;
+    margin-bottom: 12px;
+    transition: border-color 0.3s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-size: 0.9em;
+    color: var(--text-light);
+  }
+
+  /* ポイントボタングリッド */
+  .point-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .point-btn {
+    padding: 16px;
+    border: 3px solid transparent;
+    border-radius: 16px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-family: inherit;
+  }
+
+  .point-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .point-btn.selected {
+    border-color: var(--primary);
+    background: #f0edff;
+  }
+
+  .point-btn .emoji {
+    font-size: 2em;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .point-btn .label {
+    font-weight: 700;
+    font-size: 0.9em;
+  }
+
+  .point-btn .pts {
+    color: var(--primary);
+    font-weight: 900;
+    font-size: 1.1em;
+    margin-top: 4px;
+  }
+
+  /* 履歴 */
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .history-item:last-child { border-bottom: none; }
+
+  .history-emoji { font-size: 1.5em; margin-right: 12px; }
+
+  .history-detail {
+    flex: 1;
+  }
+
+  .history-detail .reason {
+    font-weight: 700;
+    font-size: 0.95em;
+  }
+
+  .history-detail .date {
+    font-size: 0.8em;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+
+  .history-points {
+    font-weight: 900;
+    font-size: 1.1em;
+    white-space: nowrap;
+  }
+
+  .history-points.plus { color: var(--secondary); }
+  .history-points.minus { color: var(--danger); }
+
+  /* レベルアップ演出 */
+  .levelup-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s;
+  }
+
+  .levelup-overlay.show {
+    display: flex;
+  }
+
+  .levelup-box {
+    background: white;
+    border-radius: 30px;
+    padding: 40px;
+    text-align: center;
+    animation: bounceIn 0.5s;
+    max-width: 320px;
+  }
+
+  .levelup-box .big-emoji {
+    font-size: 4em;
+    animation: bounce 1s infinite;
+  }
+
+  .levelup-box h2 {
+    font-size: 1.8em;
+    color: var(--primary);
+    margin: 16px 0 8px;
+  }
+
+  .levelup-box p {
+    color: var(--text-light);
+    margin-bottom: 20px;
+  }
+
+  /* 設定リスト */
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .child-manage-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+
+  /* 色選択 */
+  .color-picker {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .color-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .color-dot:hover { transform: scale(1.15); }
+  .color-dot.selected { border-color: var(--text); transform: scale(1.15); }
+  .color-dot[data-c="pink"] { background: linear-gradient(135deg, #fd79a8, #e84393); }
+  .color-dot[data-c="blue"] { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+  .color-dot[data-c="green"] { background: linear-gradient(135deg, #55efc4, #00b894); }
+  .color-dot[data-c="orange"] { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); }
+  .color-dot[data-c="purple"] { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+
+  /* 紙吹雪 */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    z-index: 1001;
+    pointer-events: none;
+  }
+
+  /* アニメーション */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes bounceIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  @keyframes pointPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  .point-pop { animation: pointPop 0.4s ease; }
+
+  /* フッターナビ */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    z-index: 100;
+  }
+
+  .nav-btn {
+    flex: 1;
+    max-width: 100px;
+    padding: 8px 4px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: center;
+    font-family: inherit;
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+
+  .nav-btn.active {
+    background: #f0edff;
+    color: var(--primary);
+  }
+
+  .nav-btn .nav-icon { font-size: 1.4em; display: block; }
+  .nav-btn .nav-label { font-size: 0.7em; font-weight: 700; margin-top: 2px; display: block; }
+
+  /* お小遣い交換モーダル */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 24px;
+    padding: 28px;
+    max-width: 360px;
+    width: 90%;
+    animation: bounceIn 0.3s;
+  }
+
+  .modal h3 {
+    font-size: 1.2em;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  /* スクロール */
+  .scroll-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-light);
+  }
+
+  .empty-state .big { font-size: 3em; margin-bottom: 12px; }
+
+  @media (max-width: 400px) {
+    .point-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .point-btn { padding: 12px; }
+    .point-btn .emoji { font-size: 1.5em; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ポイントゲット！</h1>
+  <p>がんばった分だけポイントがたまるよ</p>
+</header>
+
+<!-- セクション: ホーム -->
+<div class="section active" id="sec-home">
+  <div style="padding-top:16px">
+    <div id="children-list"></div>
+    <div class="card" id="no-children" style="display:none">
+      <div class="empty-state">
+        <div class="big">👨‍👩‍👧‍👦</div>
+        <p>まずはお子さんを登録しましょう！</p>
+        <button class="btn btn-primary" onclick="switchTab('sec-settings')">登録する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- セクション: ポイント追加 -->
+<div class="section" id="sec-add">
+  <div style="padding-top:16px">
+    <div class="card">
+      <h2>🎯 ポイントをあげる</h2>
+      <label>だれに？</label>
+      <select id="add-child-select"></select>
+
+      <label>なにをがんばった？</label>
+      <div class="point-grid" id="category-grid"></div>
+
+      <label>自由入力（なくてもOK）</label>
+      <input type="text" id="add-memo" placeholder="くわしいメモ">
+
+      <label>ポイント数</label>
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:16px">
+        <button class="btn btn-small" onclick="adjustCustomPt(-1)">-</button>
+        <input type="number" id="add-points" value="1" min="1" max="100" style="text-align:center; font-size:1.3em; font-weight:900; margin:0">
+        <button class="btn btn-small" onclick="adjustCustomPt(1)">+</button>
+      </div>
+
+      <button class="btn btn-success btn-full" onclick="addPoints()">ポイントゲット！</button>
+    </div>
+  </div>
+</div>
+
+<!-- セクション: 履歴 -->
+<div class="section" id="sec-history">
+  <div style="padding-top:16px">
+    <div class="card">
+      <h2>📋 ポイント履歴</h2>
+      <label>だれの？</label>
+      <select id="hist-child-select" onchange="renderHistory()">
+        <option value="all">ぜんいん</option>
+      </select>
+      <div class="scroll-list" id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- セクション: 設定 -->
+<div class="section" id="sec-settings">
+  <div style="padding-top:16px">
+    <div class="card">
+      <h2>👶 お子さんの登録</h2>
+      <label>なまえ</label>
+      <input type="text" id="new-child-name" placeholder="たろう">
+      <label>テーマカラー</label>
+      <div class="color-picker">
+        <div class="color-dot selected" data-c="pink" onclick="selectColor(this)"></div>
+        <div class="color-dot" data-c="blue" onclick="selectColor(this)"></div>
+        <div class="color-dot" data-c="green" onclick="selectColor(this)"></div>
+        <div class="color-dot" data-c="orange" onclick="selectColor(this)"></div>
+        <div class="color-dot" data-c="purple" onclick="selectColor(this)"></div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="addChild()">追加する</button>
+    </div>
+
+    <div class="card">
+      <h2>👥 登録ずみのお子さん</h2>
+      <div id="manage-children-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>💰 おこづかい設定</h2>
+      <label>1ポイント = いくら？（円）</label>
+      <input type="number" id="yen-per-point" value="10" min="1" max="1000" onchange="saveSettings()">
+    </div>
+
+    <div class="card">
+      <h2>📂 カテゴリ管理</h2>
+      <div id="manage-categories"></div>
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <input type="text" id="new-cat-emoji" placeholder="絵文字" style="width:70px; text-align:center">
+        <input type="text" id="new-cat-name" placeholder="カテゴリ名" style="flex:1">
+        <input type="number" id="new-cat-pts" placeholder="pt" value="1" style="width:70px; text-align:center">
+      </div>
+      <button class="btn btn-primary btn-full" style="margin-top:8px" onclick="addCategory()">カテゴリ追加</button>
+    </div>
+
+    <div class="card">
+      <h2>💾 データ管理</h2>
+      <button class="btn btn-primary btn-full" onclick="exportData()" style="margin-bottom:8px">データを書き出す（JSON）</button>
+      <button class="btn btn-small btn-full" onclick="document.getElementById('import-file').click()">データを読み込む</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-danger btn-full" style="margin-top:12px" onclick="resetAll()">すべてリセット</button>
+    </div>
+  </div>
+</div>
+
+<!-- お小遣い交換モーダル -->
+<div class="modal-overlay" id="exchange-modal">
+  <div class="modal">
+    <h3>💰 おこづかいに交換</h3>
+    <p id="exchange-info" style="text-align:center; margin-bottom:16px;"></p>
+    <label>つかうポイント数</label>
+    <input type="number" id="exchange-points" min="1" value="10">
+    <p id="exchange-yen" style="text-align:center; font-size:1.3em; font-weight:900; color:#00b894; margin-bottom:16px;"></p>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-full" style="background:#dfe6e9" onclick="closeExchangeModal()">やめる</button>
+      <button class="btn btn-primary btn-full" onclick="doExchange()">交換する！</button>
+    </div>
+  </div>
+</div>
+
+<!-- レベルアップ演出 -->
+<div class="levelup-overlay" id="levelup-overlay" onclick="closeLevelUp()">
+  <div class="levelup-box">
+    <div class="big-emoji" id="levelup-emoji">⭐</div>
+    <h2 id="levelup-title">レベルアップ！</h2>
+    <p id="levelup-desc"></p>
+    <button class="btn btn-primary" onclick="closeLevelUp()">やったね！</button>
+  </div>
+</div>
+
+<!-- フッターナビ -->
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="switchTab('sec-home')" data-tab="sec-home">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">ホーム</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('sec-add')" data-tab="sec-add">
+    <span class="nav-icon">➕</span>
+    <span class="nav-label">ポイント</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('sec-history')" data-tab="sec-history">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">履歴</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('sec-settings')" data-tab="sec-settings">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">設定</span>
+  </button>
+</div>
+
+<script>
+// ========== データ構造 ==========
+const DEFAULT_CATEGORIES = [
+  { id: 'presentation', emoji: '🎤', name: '発表', points: 3 },
+  { id: 'chore', emoji: '🧹', name: 'おそうじ', points: 2 },
+  { id: 'cooking', emoji: '🍳', name: 'お料理てつだい', points: 2 },
+  { id: 'homework', emoji: '📝', name: 'しゅくだい', points: 1 },
+  { id: 'reading', emoji: '📚', name: '読書', points: 1 },
+  { id: 'kind', emoji: '💖', name: 'やさしさ', points: 2 },
+  { id: 'shopping', emoji: '🛒', name: 'おつかい', points: 3 },
+  { id: 'other', emoji: '⭐', name: 'そのほか', points: 1 },
+];
+
+const LEVELS = [
+  { name: 'ビギナー', emoji: '🌱', minPts: 0 },
+  { name: 'がんばりや', emoji: '🌟', minPts: 10 },
+  { name: 'すごいぞ', emoji: '💪', minPts: 30 },
+  { name: 'エース', emoji: '🏅', minPts: 60 },
+  { name: 'チャンピオン', emoji: '🏆', minPts: 100 },
+  { name: 'スーパースター', emoji: '⭐', minPts: 150 },
+  { name: 'レジェンド', emoji: '👑', minPts: 250 },
+  { name: 'かみさま', emoji: '✨', minPts: 500 },
+];
+
+let data = loadData();
+let selectedColor = 'pink';
+let selectedCategoryId = null;
+
+function defaultData() {
+  return {
+    children: [],
+    history: [],
+    categories: [...DEFAULT_CATEGORIES],
+    settings: { yenPerPoint: 10 },
+  };
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem('kids-point-app');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return defaultData();
+}
+
+function saveData() {
+  localStorage.setItem('kids-point-app', JSON.stringify(data));
+}
+
+// ========== レベル計算 ==========
+function getLevel(totalEarned) {
+  let level = LEVELS[0];
+  for (const l of LEVELS) {
+    if (totalEarned >= l.minPts) level = l;
+  }
+  return level;
+}
+
+function getNextLevel(totalEarned) {
+  for (const l of LEVELS) {
+    if (totalEarned < l.minPts) return l;
+  }
+  return null;
+}
+
+function getLevelProgress(totalEarned) {
+  const current = getLevel(totalEarned);
+  const next = getNextLevel(totalEarned);
+  if (!next) return 100;
+  const range = next.minPts - current.minPts;
+  const progress = totalEarned - current.minPts;
+  return Math.min(100, (progress / range) * 100);
+}
+
+// ========== タブ切り替え ==========
+function switchTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[data-tab="${id}"]`)?.classList.add('active');
+
+  if (id === 'sec-add') renderAddSection();
+  if (id === 'sec-history') renderHistory();
+  if (id === 'sec-settings') renderSettings();
+  if (id === 'sec-home') renderHome();
+}
+
+// ========== ホーム画面 ==========
+function renderHome() {
+  const list = document.getElementById('children-list');
+  const empty = document.getElementById('no-children');
+
+  if (data.children.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  list.innerHTML = data.children.map(child => {
+    const level = getLevel(child.totalEarned);
+    const next = getNextLevel(child.totalEarned);
+    const progress = getLevelProgress(child.totalEarned);
+    const allowance = child.points * data.settings.yenPerPoint;
+
+    return `
+      <div class="child-card" data-color="${child.color}" onclick="openExchangeModal('${child.id}')">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="child-name">${child.name}</div>
+          <div class="child-level">${level.emoji} ${level.name}</div>
+        </div>
+        <div class="child-points" id="pts-${child.id}">${child.points}<span> ポイント</span></div>
+        <div class="child-allowance">おこづかい換算: ${allowance.toLocaleString()}円</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${progress}%"></div>
+        </div>
+        ${next ? `<div style="font-size:0.75em; margin-top:4px; opacity:0.7">つぎのレベルまで あと${next.minPts - child.totalEarned}pt</div>` : '<div style="font-size:0.75em; margin-top:4px; opacity:0.7">最高レベル達成！</div>'}
+      </div>
+    `;
+  }).join('');
+}
+
+// ========== 子ども登録 ==========
+function selectColor(el) {
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedColor = el.dataset.c;
+}
+
+function addChild() {
+  const nameInput = document.getElementById('new-child-name');
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  const child = {
+    id: 'child_' + Date.now(),
+    name,
+    color: selectedColor,
+    points: 0,
+    totalEarned: 0,
+  };
+
+  data.children.push(child);
+  saveData();
+  nameInput.value = '';
+  renderSettings();
+  renderHome();
+}
+
+function removeChild(id) {
+  if (!confirm('本当に削除しますか？ポイントも消えます。')) return;
+  data.children = data.children.filter(c => c.id !== id);
+  data.history = data.history.filter(h => h.childId !== id);
+  saveData();
+  renderSettings();
+  renderHome();
+}
+
+// ========== ポイント追加画面 ==========
+function renderAddSection() {
+  const select = document.getElementById('add-child-select');
+  select.innerHTML = data.children.map(c =>
+    `<option value="${c.id}">${c.name}</option>`
+  ).join('');
+
+  const grid = document.getElementById('category-grid');
+  grid.innerHTML = data.categories.map(cat => `
+    <button class="point-btn ${selectedCategoryId === cat.id ? 'selected' : ''}"
+      onclick="selectCategory('${cat.id}', ${cat.points})">
+      <span class="emoji">${cat.emoji}</span>
+      <span class="label">${cat.name}</span>
+      <span class="pts">+${cat.points}pt</span>
+    </button>
+  `).join('');
+}
+
+function selectCategory(id, pts) {
+  selectedCategoryId = id;
+  document.getElementById('add-points').value = pts;
+  renderAddSection();
+}
+
+function adjustCustomPt(delta) {
+  const input = document.getElementById('add-points');
+  let val = parseInt(input.value) || 1;
+  val = Math.max(1, Math.min(100, val + delta));
+  input.value = val;
+}
+
+function addPoints() {
+  const childId = document.getElementById('add-child-select').value;
+  if (!childId) return;
+
+  const points = parseInt(document.getElementById('add-points').value) || 1;
+  const memo = document.getElementById('add-memo').value.trim();
+  const cat = data.categories.find(c => c.id === selectedCategoryId) || data.categories[data.categories.length - 1];
+
+  const child = data.children.find(c => c.id === childId);
+  if (!child) return;
+
+  const oldLevel = getLevel(child.totalEarned);
+
+  child.points += points;
+  child.totalEarned += points;
+
+  const newLevel = getLevel(child.totalEarned);
+
+  data.history.unshift({
+    id: 'h_' + Date.now(),
+    childId,
+    childName: child.name,
+    categoryId: cat.id,
+    emoji: cat.emoji,
+    reason: cat.name + (memo ? `（${memo}）` : ''),
+    points: points,
+    date: new Date().toISOString(),
+    type: 'earn',
+  });
+
+  saveData();
+  document.getElementById('add-memo').value = '';
+
+  // ポイント追加アニメーション
+  showPointAnimation(points);
+
+  // レベルアップチェック
+  if (newLevel.minPts > oldLevel.minPts) {
+    setTimeout(() => showLevelUp(child.name, newLevel), 800);
+  }
+
+  renderHome();
+}
+
+function showPointAnimation(pts) {
+  const btn = document.querySelector('#sec-add .btn-success');
+  btn.textContent = `+${pts}pt ゲット！`;
+  btn.style.background = '#fdcb6e';
+  btn.style.color = '#2d3436';
+
+  setTimeout(() => {
+    btn.textContent = 'ポイントゲット！';
+    btn.style.background = '';
+    btn.style.color = '';
+  }, 1200);
+}
+
+// ========== レベルアップ演出 ==========
+function showLevelUp(name, level) {
+  document.getElementById('levelup-emoji').textContent = level.emoji;
+  document.getElementById('levelup-title').textContent = 'レベルアップ！';
+  document.getElementById('levelup-desc').textContent = `${name}が「${level.name}」になったよ！`;
+  document.getElementById('levelup-overlay').classList.add('show');
+  spawnConfetti();
+}
+
+function closeLevelUp() {
+  document.getElementById('levelup-overlay').classList.remove('show');
+}
+
+function spawnConfetti() {
+  const colors = ['#e17055', '#00b894', '#0984e3', '#fdcb6e', '#6c5ce7', '#fd79a8'];
+  for (let i = 0; i < 50; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top = '-10px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.width = (6 + Math.random() * 8) + 'px';
+    el.style.height = (6 + Math.random() * 8) + 'px';
+    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    document.body.appendChild(el);
+
+    const duration = 1500 + Math.random() * 2000;
+    const xDrift = (Math.random() - 0.5) * 200;
+    el.animate([
+      { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
+      { transform: `translateY(100vh) translateX(${xDrift}px) rotate(${360 + Math.random()*360}deg)`, opacity: 0 },
+    ], { duration, easing: 'ease-out' });
+
+    setTimeout(() => el.remove(), duration);
+  }
+}
+
+// ========== おこづかい交換 ==========
+let exchangeChildId = null;
+
+function openExchangeModal(childId) {
+  const child = data.children.find(c => c.id === childId);
+  if (!child) return;
+
+  exchangeChildId = childId;
+  document.getElementById('exchange-info').textContent =
+    `${child.name}の持ちポイント: ${child.points}pt`;
+  document.getElementById('exchange-points').max = child.points;
+  document.getElementById('exchange-points').value = Math.min(10, child.points);
+  updateExchangeYen();
+  document.getElementById('exchange-modal').classList.add('show');
+}
+
+function closeExchangeModal() {
+  document.getElementById('exchange-modal').classList.remove('show');
+  exchangeChildId = null;
+}
+
+function updateExchangeYen() {
+  const pts = parseInt(document.getElementById('exchange-points').value) || 0;
+  const yen = pts * data.settings.yenPerPoint;
+  document.getElementById('exchange-yen').textContent = `= ${yen.toLocaleString()}円`;
+}
+
+document.getElementById('exchange-points')?.addEventListener('input', updateExchangeYen);
+
+function doExchange() {
+  const child = data.children.find(c => c.id === exchangeChildId);
+  if (!child) return;
+
+  const pts = parseInt(document.getElementById('exchange-points').value) || 0;
+  if (pts <= 0 || pts > child.points) {
+    alert('ポイントが足りません');
+    return;
+  }
+
+  child.points -= pts;
+  const yen = pts * data.settings.yenPerPoint;
+
+  data.history.unshift({
+    id: 'h_' + Date.now(),
+    childId: child.id,
+    childName: child.name,
+    categoryId: 'exchange',
+    emoji: '💰',
+    reason: `おこづかい交換（${yen.toLocaleString()}円）`,
+    points: -pts,
+    date: new Date().toISOString(),
+    type: 'exchange',
+  });
+
+  saveData();
+  closeExchangeModal();
+  renderHome();
+}
+
+// ========== 履歴 ==========
+function renderHistory() {
+  const select = document.getElementById('hist-child-select');
+  // 選択肢を更新
+  const currentVal = select.value;
+  select.innerHTML = '<option value="all">ぜんいん</option>' +
+    data.children.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  select.value = currentVal || 'all';
+
+  const filter = select.value;
+  const items = filter === 'all'
+    ? data.history
+    : data.history.filter(h => h.childId === filter);
+
+  const list = document.getElementById('history-list');
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="big">📋</div><p>まだ履歴がありません</p></div>';
+    return;
+  }
+
+  list.innerHTML = items.slice(0, 100).map(h => {
+    const date = new Date(h.date);
+    const dateStr = `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2,'0')}`;
+    const isPlus = h.points > 0;
+
+    return `
+      <div class="history-item">
+        <span class="history-emoji">${h.emoji}</span>
+        <div class="history-detail">
+          <div class="reason">${h.childName}: ${h.reason}</div>
+          <div class="date">${dateStr}</div>
+        </div>
+        <div class="history-points ${isPlus ? 'plus' : 'minus'}">
+          ${isPlus ? '+' : ''}${h.points}pt
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ========== 設定 ==========
+function renderSettings() {
+  document.getElementById('yen-per-point').value = data.settings.yenPerPoint;
+
+  const list = document.getElementById('manage-children-list');
+  if (data.children.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-light); text-align:center; padding:12px">まだ登録されていません</p>';
+  } else {
+    list.innerHTML = data.children.map(c => `
+      <div class="child-manage-item">
+        <span style="font-weight:700">${c.name}（${c.points}pt）</span>
+        <button class="btn btn-danger btn-small" onclick="removeChild('${c.id}')">削除</button>
+      </div>
+    `).join('');
+  }
+
+  const catList = document.getElementById('manage-categories');
+  catList.innerHTML = data.categories.map(cat => `
+    <div class="child-manage-item">
+      <span>${cat.emoji} ${cat.name}（+${cat.points}pt）</span>
+      <button class="btn btn-danger btn-small" onclick="removeCategory('${cat.id}')">削除</button>
+    </div>
+  `).join('');
+}
+
+function saveSettings() {
+  data.settings.yenPerPoint = parseInt(document.getElementById('yen-per-point').value) || 10;
+  saveData();
+  renderHome();
+}
+
+function addCategory() {
+  const emoji = document.getElementById('new-cat-emoji').value.trim() || '⭐';
+  const name = document.getElementById('new-cat-name').value.trim();
+  const pts = parseInt(document.getElementById('new-cat-pts').value) || 1;
+  if (!name) return;
+
+  data.categories.push({
+    id: 'cat_' + Date.now(),
+    emoji, name, points: pts,
+  });
+  saveData();
+  document.getElementById('new-cat-emoji').value = '';
+  document.getElementById('new-cat-name').value = '';
+  document.getElementById('new-cat-pts').value = '1';
+  renderSettings();
+}
+
+function removeCategory(id) {
+  data.categories = data.categories.filter(c => c.id !== id);
+  saveData();
+  renderSettings();
+}
+
+// ========== データ管理 ==========
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ポイントゲット_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (imported.children && imported.history) {
+        data = imported;
+        saveData();
+        renderHome();
+        renderSettings();
+        alert('データを読み込みました！');
+      } else {
+        alert('正しいデータファイルではありません');
+      }
+    } catch(err) {
+      alert('ファイルの読み込みに失敗しました');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetAll() {
+  if (!confirm('本当にすべてのデータを消しますか？')) return;
+  if (!confirm('この操作は取り消せません。本当にいいですか？')) return;
+  data = defaultData();
+  saveData();
+  renderHome();
+  renderSettings();
+}
+
+// ========== 初期化 ==========
+renderHome();
+</script>
+</body>
+</html>
