@@ -1072,9 +1072,31 @@ function renderHistory() {
         <div class="history-points ${isPlus ? 'plus' : 'minus'}">
           ${isPlus ? '+' : ''}${h.points}pt
         </div>
+        <button class="btn btn-danger btn-small" style="margin-left:8px; font-size:0.75em; padding:6px 10px;" onclick="deleteHistory('${h.id}')">取消</button>
       </div>
     `;
   }).join('');
+}
+
+function deleteHistory(histId) {
+  const entry = data.history.find(h => h.id === histId);
+  if (!entry) return;
+  if (!confirm(`「${entry.childName}: ${entry.reason}（${entry.points > 0 ? '+' : ''}${entry.points}pt）」を取り消しますか？`)) return;
+
+  const child = data.children.find(c => c.id === entry.childId);
+  if (child) {
+    child.points -= entry.points;
+    if (entry.points > 0) {
+      child.totalEarned -= entry.points;
+      if (child.totalEarned < 0) child.totalEarned = 0;
+    }
+    if (child.points < 0) child.points = 0;
+  }
+
+  data.history = data.history.filter(h => h.id !== histId);
+  saveData();
+  renderHistory();
+  renderHome();
 }
 
 // ========== 設定 ==========
